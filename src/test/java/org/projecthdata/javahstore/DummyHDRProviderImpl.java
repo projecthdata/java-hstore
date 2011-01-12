@@ -15,7 +15,6 @@
  */
 package org.projecthdata.javahstore;
 
-import org.junit.Ignore;
 import org.projecthdata.javahstore.hdr.HDR;
 import org.projecthdata.javahstore.hdr.HDRProvider;
 import org.projecthdata.javahstore.hdr.RootDocument;

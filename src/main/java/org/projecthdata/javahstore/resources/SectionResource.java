@@ -130,6 +130,7 @@ public class SectionResource {
 
   @DELETE
   public Response deleteSection() {
+
     parent.deleteChildSection(section);
     return Response.ok().build();
   }

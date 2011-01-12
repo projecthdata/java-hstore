@@ -15,6 +15,7 @@
  */
 package org.projecthdata.javahstore;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,23 +29,23 @@ public class DummyRootDocumentImpl implements RootDocument {
   String id;
   Date created, lastModified;
   Map<String, Extension> extensions;
-  Section rootSection;
+  Collection<Section> rootSections;
 
   public DummyRootDocumentImpl() {
     id = "12345";
     created = new Date();
     lastModified = new Date();
     extensions = new HashMap<String,Extension>();
+    rootSections = new ArrayList<Section>();
     final String extId1 = "http://example.com/hdata/ext1";
     Extension ext1 = new DummyExtensionImpl(extId1, "application/foobar+xml");
     final String extId2 = "http://example.com/hdata/ext2";
     Extension ext2 = new DummyExtensionImpl(extId2, "application/foobarbaz+xml");
     extensions.put(extId1, ext1);
     extensions.put(extId2, ext2);
-    rootSection = new DummySectionImpl(null);
-    rootSection.getChildSections().add(new DummySectionImpl(ext1));
-    // add a document though wouldn't normally find documents at root level
-    rootSection.getChildDocuments().add(new DummySectionDocumentImpl());
+    Section section = new DummySectionImpl(ext1);
+    section.getChildDocuments().add(new DummySectionDocumentImpl());
+    this.rootSections.add(section);
   }
 
   @Override
@@ -68,16 +69,32 @@ public class DummyRootDocumentImpl implements RootDocument {
   }
 
   @Override
-  public Section getRootSection() {
-    return rootSection;
-  }
-
-  @Override
   public Extension getExtension(String id) {
     Extension e = extensions.get(id);
     if (e==null)
       throw new IllegalArgumentException("Unknown extension ID: "+id);
     return e;
+  }
+
+  @Override
+  public Collection<Section> getRootSections() {
+   return rootSections;
+  }
+
+  @Override
+  public void createChildSection(Extension e, String path, String name) {
+   this.rootSections.add(new DummySectionImpl(e));
+  }
+
+  @Override
+  public Section getChildSection(String segment) {
+    Section section = null;
+    for (Section sec : rootSections) {
+      if (sec.getPath().equals(segment)) {
+        section = sec;
+      }
+    }
+    return section;
   }
 
 }

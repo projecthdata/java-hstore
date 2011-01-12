@@ -56,7 +56,10 @@ public class RootXMLRepresentation {
     }
     this.sections = new ArrayList<SectionRepresentation>();
     List<String> pathSegments = new ArrayList<String>();
-    addChildSections(doc.getRootSection(), pathSegments);
+    
+    for (Section s : doc.getRootSections()) {
+       addChildSections(s, pathSegments);
+    }
   }
 
   /**
@@ -65,8 +68,8 @@ public class RootXMLRepresentation {
    */
   private void addChildSections(Section parent, List<String> pathSegments) {
     pathSegments.add(parent.getPath());
+    this.sections.add(new SectionRepresentation(parent, pathSegments));
     for (Section s: parent.getChildSections()) {
-      this.sections.add(new SectionRepresentation(s, pathSegments));
       addChildSections(s, pathSegments);
     }
     pathSegments.remove(pathSegments.size()-1);

@@ -18,6 +18,7 @@ package org.projecthdata.javahstore.resources;
 import com.sun.jersey.api.NotFoundException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.ServiceLoader;
 import javax.ws.rs.Consumes;
@@ -66,8 +67,8 @@ public class RecordResource {
 
   @GET
   @Produces(MediaType.APPLICATION_ATOM_XML)
-  public Section getRootSections() {
-    return hdr.getRootDocument().getRootSection();
+  public Collection<Section> getRootSections() {
+    return hdr.getRootDocument().getRootSections();
   }
 
   @POST
@@ -85,7 +86,7 @@ public class RecordResource {
 
     try {
       Extension e = hdr.getRootDocument().getExtension(extensionId);
-      hdr.getRootDocument().getRootSection().createChildSection(e, path, name);
+      hdr.getRootDocument().createChildSection(e, path, name);
     } catch (IllegalArgumentException ex) {
       throw new BadRequestException(ex.getMessage());
     }
@@ -101,9 +102,9 @@ public class RecordResource {
 
   @Path("{segment}")
   public Object findChild(@PathParam("segment") String segment) {
-    Section childSection = hdr.getRootDocument().getRootSection().getChildSection(segment);
+    Section childSection = hdr.getRootDocument().getChildSection(segment);
     if (childSection != null)
-      return new SectionResource(hdr, childSection, hdr.getRootDocument().getRootSection(), uriInfo, request);
+      return new SectionResource(hdr, childSection, null, uriInfo, request);
     throw new NotFoundException("Section "+segment+" not found");
   }
 

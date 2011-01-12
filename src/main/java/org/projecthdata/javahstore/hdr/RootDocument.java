@@ -60,6 +60,10 @@ public interface RootDocument {
    * not allow creation of child documents.
    * @return a list of child sections of the current section.
    */
-  Section getRootSection();
+  Collection<Section> getRootSections();
+
+  public void createChildSection(Extension e, String path, String name);
+
+  public Section getChildSection(String segment);
 
 }

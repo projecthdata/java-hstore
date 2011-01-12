@@ -15,20 +15,12 @@
  */
 package org.projecthdata.javahstore.representations;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.net.URI;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.MessageBodyWriter;
 import javax.ws.rs.ext.Provider;
-import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Category;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
@@ -43,33 +35,12 @@ import org.projecthdata.javahstore.hdr.SectionDocument;
  */
 @Produces(MediaType.APPLICATION_ATOM_XML)
 @Provider
-public class SectionFeedWriter implements MessageBodyWriter<Section> {
-
-  private static Abdera abdera = null;
-  @Context UriInfo uriInfo;
-
-  public static synchronized Abdera getAbdera() {
-    if (abdera == null)
-      abdera = new Abdera();
-    return abdera;
-  }
+public class SectionFeedWriter extends AtomFeedWriter<Section> {
 
   @Override
-  public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return Section.class.isAssignableFrom(type);
-  }
+  public void buildFeed(Feed feed, Section t) {
 
-  @Override
-  public long getSize(Section t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return -1;
-  }
-
-  @Override
-  public void writeTo(Section t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
-    Feed feed = getAbdera().newFeed();
-    feed.setId(uriInfo.getRequestUri().toString());
     feed.setTitle(t.getName());
-    feed.addLink(uriInfo.getRequestUri().toString(), "self");
     for (Section section: t.getChildSections()) {
       Entry entry = feed.addEntry();
       URI sectionUri = uriInfo.getAbsolutePathBuilder().path(section.getPath()).build();
@@ -98,7 +69,11 @@ public class SectionFeedWriter implements MessageBodyWriter<Section> {
         entry.setContent(document.getMetadata().getXml(), MediaType.APPLICATION_XML);
       }
     }
-    feed.writeTo(entityStream);
+  }
+
+  @Override
+  public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+    return Section.class.isAssignableFrom(type);
   }
 
 }

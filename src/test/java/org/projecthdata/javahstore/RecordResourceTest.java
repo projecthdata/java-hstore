@@ -53,7 +53,6 @@ public class RecordResourceTest extends JerseyTest {
     WebResource webResource = resource();
     ClientResponse response = webResource.path("/12345").get(ClientResponse.class);
     String entity = checkResponse(response, 200, MediaType.APPLICATION_ATOM_XML_TYPE);
-    System.out.println(entity);
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     dbf.setNamespaceAware(true);
     DocumentBuilder db = dbf.newDocumentBuilder();
@@ -62,13 +61,9 @@ public class RecordResourceTest extends JerseyTest {
     XPath xp = xpf.newXPath();
     xp.setNamespaceContext(new DummyNamespaceContext());
     String title = xp.evaluate("/atom:feed/atom:title", doc);
-    assertEquals("FooExt", title);
+    assertEquals("Root", title);
     String sections = xp.evaluate("count(/atom:feed/atom:entry[atom:category/@term='http://example.com/hdata/ext1'])", doc);
     assertEquals("1", sections);
-    String documents = xp.evaluate("count(/atom:feed/atom:entry[not(atom:category/@term='http://example.com/hdata/ext1')])", doc);
-    assertEquals("1", documents);
-    String author = xp.evaluate("/atom:feed/atom:entry[not(atom:category/@term='http://example.com/hdata/ext1')][1]/atom:content/hdm:DocumentMetaData/hdm:PedigreeInfo/hdm:Author", doc);
-    assertEquals(DummySectionDocumentImpl.TEST_AUTHOR, author);
   }
 
   /**
@@ -79,7 +74,6 @@ public class RecordResourceTest extends JerseyTest {
     WebResource webResource = resource();
     ClientResponse response = webResource.path("/12345/root.xml").get(ClientResponse.class);
     String entity = checkResponse(response, 200, MediaType.APPLICATION_XML_TYPE);
-    //System.out.println(entity);
     DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     dbf.setNamespaceAware(true);
     DocumentBuilder db = dbf.newDocumentBuilder();
