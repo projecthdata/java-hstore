@@ -17,6 +17,7 @@ package org.projecthdata.javahstore.hdr;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,6 +51,10 @@ public class DocumentMetadata {
   private static DocumentBuilderFactory dbf;
   private static Schema s;
   private String author;
+
+  public DocumentMetadata() throws ParserConfigurationException, SAXException, IOException {
+    this("<DocumentMetaData xmlns='http://projecthdata.org/hdata/schemas/2009/11/metadata'></DocumentMetaData>");
+  }
 
   /**
    * Initialize from a String that contains the XML serialization of the
@@ -98,9 +103,20 @@ public class DocumentMetadata {
 
   private static synchronized Validator getValidator() throws SAXException {
     if (s==null) {
+      System.out.println("VALIDATE");
       SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
       sf.setResourceResolver(new SchemaImportResolver());
-      s = sf.newSchema(DocumentMetadata.class.getResource(ResourceResolver.SCHEMA_PATH+"section_metadata.xsd"));
+      String path = ResourceResolver.SCHEMA_PATH + "section_metadata.xsd";
+
+      System.out.println(path);
+
+      URL url = DocumentMetadata.class.getResource(path);
+
+      if (url == null) {
+        System.out.println("NO URL " + path);
+      }
+
+      s = sf.newSchema(url);
     }
     return s.newValidator();
   }
