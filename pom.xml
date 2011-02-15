@@ -52,6 +52,16 @@
       <artifactId>hdata-schemas</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>hdata-schemas</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+<!--    <dependency>
+      <groupId>org.projecthdata.javahstore</groupId>
+      <artifactId>java-hstore-sample</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>-->
   </dependencies>
   <repositories>
     <repository>

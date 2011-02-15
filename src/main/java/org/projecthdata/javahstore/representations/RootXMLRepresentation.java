@@ -37,6 +37,30 @@ public class RootXMLRepresentation {
 
   @XmlElement(name="id") String id;
   @XmlElement(name="version") final static String version = "1";
+
+  public Date getCreated() {
+    return created;
+  }
+
+  public List<ExtensionRepresentation> getExtensions() {
+    return extensions;
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public Date getLastModified() {
+    return lastModified;
+  }
+
+  public List<SectionRepresentation> getSections() {
+    return sections;
+  }
+
+  public static String getVersion() {
+    return version;
+  }
   @XmlElement(name="created") Date created;
   @XmlElement(name="lastModified") Date lastModified;
   @XmlElement(name="extension") @XmlElementWrapper(name="extensions")
@@ -75,13 +99,19 @@ public class RootXMLRepresentation {
     pathSegments.remove(pathSegments.size()-1);
   }
 
-  private static class SectionRepresentation {
-
+  public static class SectionRepresentation {
+    
     @XmlAttribute(name="path") String path;
     @XmlAttribute(name="extensionId") String extensionId;
     @XmlAttribute(name="name") String name;
 
     public SectionRepresentation() {} // keep JAXB happy
+
+    public SectionRepresentation(String path, String name, String extensionId) {
+      this.path = path;
+      this.name = name;
+      this.extensionId = extensionId;
+    }
 
     public SectionRepresentation(Section section, List<String> pathSegments) {
       UriBuilder uriPath = UriBuilder.fromPath("");
@@ -93,19 +123,44 @@ public class RootXMLRepresentation {
       extensionId=section.getExtension().getId();
       name=section.getName();
     }
+   
+    public String getExtensionId() {
+      return extensionId;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getPath() {
+      return path;
+    }
 
   }
 
-  private static class ExtensionRepresentation {
+  public static class ExtensionRepresentation {
 
     @XmlValue String id;
     @XmlAttribute(name="contentType") String contentType;
 
     public ExtensionRepresentation() {} // keep JAXB happy
 
+    public ExtensionRepresentation(String id, String contentType) {
+      this.id = id;
+      this.contentType = contentType;
+    }
+
     public ExtensionRepresentation(Extension extension) {
       id = extension.getId();
       contentType = extension.getContentType();
+    }
+
+    public String getContentType() {
+      return contentType;
+    }
+
+    public String getId() {
+      return id;
     }
 
   }

@@ -30,10 +30,13 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 import org.projecthdata.javahstore.hdr.Extension;
 import org.projecthdata.javahstore.hdr.HDR;
 import org.projecthdata.javahstore.hdr.HDRProvider;
@@ -67,8 +70,8 @@ public class RecordResource {
 
   @GET
   @Produces(MediaType.APPLICATION_ATOM_XML)
-  public Collection<Section> getRootSections() {
-    return hdr.getRootDocument().getRootSections();
+  public Response getRootSections() {
+    return Response.ok(new GenericEntity<HDR>(hdr, HDR.class), MediaType.APPLICATION_ATOM_XML).build();
   }
 
   @POST
@@ -132,7 +135,7 @@ public class RecordResource {
       throw new WebApplicationException(
               Response.serverError()
                 .type("text/plain")
-                .entity("Mulitple HDRProvider implementations found, only one supported")
+                .entity("Multiple HDRProvider implementations found, only one supported")
                 .build());
     }
     hdrProvider = hdrProviders.get(0);
