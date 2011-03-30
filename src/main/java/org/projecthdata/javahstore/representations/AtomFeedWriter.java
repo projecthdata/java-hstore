@@ -27,17 +27,12 @@ public abstract class AtomFeedWriter<T> implements MessageBodyWriter<T> {
   // Hacky way to inspect class of T at runtime @ssayer
   
   private static Abdera abdera = null;
-  private Feed feed;
   @Context UriInfo uriInfo;
 
   public static synchronized Abdera getAbdera() {
     if (abdera == null)
       abdera = new Abdera();
     return abdera;
-  }
-
-  public AtomFeedWriter() {
-     this.feed = getAbdera().newFeed();
   }
 
   @Override
@@ -47,9 +42,10 @@ public abstract class AtomFeedWriter<T> implements MessageBodyWriter<T> {
 
   @Override
   public void writeTo(T t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException{
+    
+    Feed feed = getAbdera().newFeed();
     buildFeed(feed, t);
-    feed.setId(uriInfo.getRequestUri().toString());
-    feed.addLink(uriInfo.getRequestUri().toString(), "self");
+    
     feed.writeTo(entityStream);
   }
 
