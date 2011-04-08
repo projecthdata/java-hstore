@@ -15,6 +15,7 @@
  */
 package org.projecthdata.javahstore.resources;
 
+import com.sun.jersey.api.ConflictException;
 import com.sun.jersey.api.NotFoundException;
 import com.sun.jersey.core.header.ContentDisposition;
 import com.sun.jersey.multipart.BodyPart;
@@ -81,7 +82,9 @@ public class SectionResource {
       throw new BadRequestException("A path is required");
     else if(name == null)
       throw new BadRequestException("A name is required");
-
+    else if(this.section.getChildSection(path) != null) {
+      throw new ConflictException("A section with this name already exists");
+    }
     try {
       Extension e = hdr.getRootDocument().getExtension(extensionId);
       section.createChildSection(e, path, name);

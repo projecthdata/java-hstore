@@ -40,6 +40,14 @@ public class DummySectionImpl implements Section {
     childDocuments = new ArrayList<SectionDocument>();
   }
 
+  DummySectionImpl(Extension e, String path, String name) {
+    this.extension = e;
+    this.path = path;
+    this.name = name;
+    this.childSections = new ArrayList<Section>();
+    this.childDocuments = new ArrayList<SectionDocument>();
+  }
+
   @Override
   public String getPath() {
     return path;
@@ -47,7 +55,7 @@ public class DummySectionImpl implements Section {
 
   @Override
   public Extension getExtension() {
-    return extension;
+    return this.extension;
   }
 
   @Override
@@ -62,7 +70,13 @@ public class DummySectionImpl implements Section {
 
   @Override
   public Section getChildSection(String path) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    for (Section section : childSections) {
+      if (section.getPath().equals(path)) {
+        return section;
+      }
+    }
+
+    return null;
   }
 
   @Override
@@ -77,7 +91,9 @@ public class DummySectionImpl implements Section {
 
   @Override
   public Section createChildSection(Extension extensionId, String path, String name) {
-    throw new UnsupportedOperationException("Not supported yet.");
+    Section sec = new DummySectionImpl(extensionId, path, name);
+    this.childSections.add(sec);
+    return sec;
   }
 
   @Override

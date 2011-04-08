@@ -16,21 +16,14 @@
 package org.projecthdata.javahstore;
 
 import java.io.IOException;
-import java.util.Iterator;
 import javax.xml.xpath.XPathExpressionException;
 import org.w3c.dom.Document;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.test.framework.JerseyTest;
-import java.io.ByteArrayInputStream;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 import javax.ws.rs.core.MediaType;
-import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.xml.sax.SAXException;
@@ -39,11 +32,7 @@ import org.xml.sax.SAXException;
  * Record level tests
  * @author marc
  */
-public class RecordResourceTest extends JerseyTest {
-
-  public RecordResourceTest() throws Exception {
-    super("org.projecthdata.javahstore.resources;org.projecthdata.javahstore.representations");
-  }
+public class RecordResourceTest extends HDataTest {
 
   /**
    * Tests for the root section feed
@@ -53,16 +42,10 @@ public class RecordResourceTest extends JerseyTest {
     WebResource webResource = resource();
     ClientResponse response = webResource.path("/12345").get(ClientResponse.class);
     String entity = checkResponse(response, 200, MediaType.APPLICATION_ATOM_XML_TYPE);
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    dbf.setNamespaceAware(true);
-    DocumentBuilder db = dbf.newDocumentBuilder();
-    Document doc = db.parse(new ByteArrayInputStream(entity.getBytes()));
-    XPathFactory xpf = XPathFactory.newInstance();
-    XPath xp = xpf.newXPath();
-    xp.setNamespaceContext(new DummyNamespaceContext());
-    String title = xp.evaluate("/atom:feed/atom:title", doc);
+    Document doc = buildDocument(entity);
+    String title = getXpath().evaluate("/atom:feed/atom:title", doc);
     assertEquals("Root", title);
-    String sections = xp.evaluate("count(/atom:feed/atom:entry[atom:category/@term='http://example.com/hdata/ext1'])", doc);
+    String sections = getXpath().evaluate("count(/atom:feed/atom:entry[atom:category/@term='http://example.com/hdata/ext1'])", doc);
     assertEquals("1", sections);
   }
 
@@ -74,57 +57,31 @@ public class RecordResourceTest extends JerseyTest {
     WebResource webResource = resource();
     ClientResponse response = webResource.path("/12345/root.xml").get(ClientResponse.class);
     String entity = checkResponse(response, 200, MediaType.APPLICATION_XML_TYPE);
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-    dbf.setNamespaceAware(true);
-    DocumentBuilder db = dbf.newDocumentBuilder();
-    Document doc = db.parse(new ByteArrayInputStream(entity.getBytes()));
-    XPathFactory xpf = XPathFactory.newInstance();
-    XPath xp = xpf.newXPath();
-    xp.setNamespaceContext(new DummyNamespaceContext());
-    String version = xp.evaluate("/hd:root/hd:version", doc);
+    Document doc = buildDocument(entity);
+    String version = getXpath().evaluate("/hd:root/hd:version", doc);
     assertEquals("1", version);
-    String sections = xp.evaluate("count(/hd:root/hd:sections/hd:section)", doc);
+    String sections = getXpath().evaluate("count(/hd:root/hd:sections/hd:section)", doc);
     assertEquals("1", sections);
-    String extensions = xp.evaluate("count(/hd:root/hd:extensions/hd:extension)", doc);
+    System.out.println("CHILD: " + getXpath().evaluate("count(/hd:root/hd:sections/hd:section/hd:section)", doc));
+
+    String extensions = getXpath().evaluate("count(/hd:root/hd:extensions/hd:extension)", doc);
     assertEquals("2", extensions);
   }
 
-  private String checkResponse(ClientResponse response, int expectedStatus,
-          MediaType expectedMediaType) {
-    assertEquals(expectedStatus, response.getStatus());
-    if (expectedMediaType!=null)
-      assertEquals(expectedMediaType, response.getType());
-    return response.getEntity(String.class);
-  }
+  @Test
+  public void testCreateSection() {
+    WebResource res = resource().path("/1234");
+    MultivaluedMap body = new MultivaluedMapImpl();
+    body.add("extensionId", "http://example.com/hdata/ext1");
+    body.add("path", "bar");
+    body.add("name", "A new section");
 
-  private static class DummyNamespaceContext implements NamespaceContext {
+    checkPost(res, 201, body);
 
-    @Override
-    public String getNamespaceURI(String prefix) {
-      if (prefix.equals("hd") || prefix.equals(XMLConstants.DEFAULT_NS_PREFIX))
-        return "http://projecthdata.org/hdata/schemas/2009/06/core";
-      else if (prefix.equals("hdm"))
-        return "http://projecthdata.org/hdata/schemas/2009/11/metadata";
-      else if (prefix.equals("atom"))
-        return "http://www.w3.org/2005/Atom";
-      else if (prefix.equals(XMLConstants.XML_NS_PREFIX))
-        return XMLConstants.XML_NS_URI;
-      else if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE))
-        return XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
-      else
-        return XMLConstants.NULL_NS_URI;
-    }
+    body.putSingle("path", "foo"); //Duplicate
+    checkPost(res, 409, body);
 
-    @Override
-    public String getPrefix(String namespaceURI) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public Iterator getPrefixes(String namespaceURI) {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-
+    checkPost(res, 400, new MultivaluedMapImpl());
   }
 
 }

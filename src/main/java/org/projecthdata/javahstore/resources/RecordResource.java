@@ -15,10 +15,10 @@
  */
 package org.projecthdata.javahstore.resources;
 
+import com.sun.jersey.api.ConflictException;
 import com.sun.jersey.api.NotFoundException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.ServiceLoader;
 import javax.ws.rs.Consumes;
@@ -35,8 +35,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
 import org.projecthdata.javahstore.hdr.Extension;
 import org.projecthdata.javahstore.hdr.HDR;
 import org.projecthdata.javahstore.hdr.HDRProvider;
@@ -80,19 +78,23 @@ public class RecordResource {
           @FormParam("extensionId") String extensionId,
           @FormParam("path") String path,
           @FormParam("name") String name) {
+
     if (extensionId==null)
       throw new BadRequestException("An extension ID is required");
     else if(path == null)
       throw new BadRequestException("A path is required");
     else if(name == null)
       throw new BadRequestException("A name is required");
-
+    else if (hdr.getRootDocument().getChildSection(path) != null) {
+      throw new ConflictException("A section with path " + path + "already exists");
+    }
     try {
       Extension e = hdr.getRootDocument().getExtension(extensionId);
       hdr.getRootDocument().createChildSection(e, path, name);
     } catch (IllegalArgumentException ex) {
       throw new BadRequestException(ex.getMessage());
     }
+
     URI childSectionURI = uriInfo.getAbsolutePathBuilder().path(path).build();
     return Response.created(childSectionURI).build();
   }

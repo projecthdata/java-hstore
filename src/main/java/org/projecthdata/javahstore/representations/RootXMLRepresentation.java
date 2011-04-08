@@ -79,24 +79,9 @@ public class RootXMLRepresentation {
       this.extensions.add(new ExtensionRepresentation(e));
     }
     this.sections = new ArrayList<SectionRepresentation>();
-    List<String> pathSegments = new ArrayList<String>();
-    
-    for (Section s : doc.getRootSections()) {
-       addChildSections(s, pathSegments);
+    for (Section s: doc.getRootSections()) {
+      this.sections.add(new SectionRepresentation(s));
     }
-  }
-
-  /**
-   * Recursive descent of all sections
-   * @param parent
-   */
-  private void addChildSections(Section parent, List<String> pathSegments) {
-    pathSegments.add(parent.getPath());
-    this.sections.add(new SectionRepresentation(parent, pathSegments));
-    for (Section s: parent.getChildSections()) {
-      addChildSections(s, pathSegments);
-    }
-    pathSegments.remove(pathSegments.size()-1);
   }
 
   public static class SectionRepresentation {
@@ -104,7 +89,8 @@ public class RootXMLRepresentation {
     @XmlAttribute(name="path") String path;
     @XmlAttribute(name="extensionId") String extensionId;
     @XmlAttribute(name="name") String name;
-
+    @XmlElement(name="section") List<SectionRepresentation> sections;
+    
     public SectionRepresentation() {} // keep JAXB happy
 
     public SectionRepresentation(String path, String name, String extensionId) {
@@ -113,15 +99,15 @@ public class RootXMLRepresentation {
       this.extensionId = extensionId;
     }
 
-    public SectionRepresentation(Section section, List<String> pathSegments) {
-      UriBuilder uriPath = UriBuilder.fromPath("");
-      for (String segment: pathSegments) {
-        uriPath = uriPath.path(segment);
-      }
-      uriPath.path(section.getPath());
-      path = uriPath.build().getPath();
+    public SectionRepresentation(Section section) {
+      path = section.getPath();
       extensionId=section.getExtension().getId();
       name=section.getName();
+      this.sections = new ArrayList<SectionRepresentation>();
+      for (Section sec : section.getChildSections()) {
+        this.sections.add(new SectionRepresentation(sec));
+      }
+      
     }
    
     public String getExtensionId() {

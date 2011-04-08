@@ -44,6 +44,7 @@ public class DummyRootDocumentImpl implements RootDocument {
     extensions.put(extId1, ext1);
     extensions.put(extId2, ext2);
     Section section = new DummySectionImpl(ext1);
+    section.getChildSections().add(new DummySectionImpl(ext2, "baz", "Subsection"));
     section.getChildDocuments().add(new DummySectionDocumentImpl());
     this.rootSections.add(section);
   }
@@ -83,18 +84,17 @@ public class DummyRootDocumentImpl implements RootDocument {
 
   @Override
   public void createChildSection(Extension e, String path, String name) {
-   this.rootSections.add(new DummySectionImpl(e));
+   this.rootSections.add(new DummySectionImpl(e, path, name));
   }
 
   @Override
   public Section getChildSection(String segment) {
-    Section section = null;
     for (Section sec : rootSections) {
       if (sec.getPath().equals(segment)) {
-        section = sec;
+        return sec;
       }
     }
-    return section;
+    return null;
   }
 
 }
