@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.net.URI;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -16,7 +17,11 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.MessageBodyWriter;
 import org.apache.abdera.Abdera;
+import org.apache.abdera.model.Category;
+import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
+import org.apache.abdera.model.Link;
+import org.projecthdata.javahstore.hdr.Section;
 
 /**
  *
@@ -45,9 +50,24 @@ public abstract class AtomFeedWriter<T> implements MessageBodyWriter<T> {
     
     Feed feed = getAbdera().newFeed();
     buildFeed(feed, t);
-    
+
     feed.writeTo(entityStream);
   }
+
+  public void writeSection(Feed feed, Section section) {
+      Entry entry = feed.addEntry();
+      URI sectionUri = uriInfo.getAbsolutePathBuilder().path(section.getPath()).build();
+      Link sectionLink = entry.addLink(sectionUri.toString());
+      sectionLink.setMimeType(MediaType.APPLICATION_ATOM_XML);
+      sectionLink.setRel("alternate");
+      entry.setId(sectionUri.toString());
+      entry.setTitle(sectionUri.getPath());
+      if (section.getExtension() != null) {
+        Category category = entry.addCategory(section.getExtension().getId());
+        category.setScheme(Constants.HDATA_XML_NS);
+      }
+  }
+
 
   public abstract void buildFeed(Feed feed, T entity);
 }

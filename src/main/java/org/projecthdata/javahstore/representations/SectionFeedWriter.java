@@ -40,29 +40,20 @@ public class SectionFeedWriter extends AtomFeedWriter<Section> {
   @Override
   public void buildFeed(Feed feed, Section t) {
 
-    feed.setTitle(t.getName());
+    feed.setTitle(t.getPath());
     for (Section section: t.getChildSections()) {
-      Entry entry = feed.addEntry();
-      URI sectionUri = uriInfo.getAbsolutePathBuilder().path(section.getPath()).build();
-      Link sectionLink = entry.addLink(sectionUri.toString());
-      sectionLink.setMimeType(MediaType.APPLICATION_ATOM_XML);
-      sectionLink.setRel("alternate");
-      entry.setId(sectionUri.toString());
-      entry.setTitle(section.getName());
-      if (section.getExtension() != null) {
-        Category category = entry.addCategory(section.getExtension().getId());
-        category.setScheme(Constants.HDATA_XML_NS);
-      }
+      writeSection(feed, section);
     }
+    
     for (SectionDocument document: t.getChildDocuments()) {
       Entry entry = feed.addEntry();
-      URI sectionUri = uriInfo.getAbsolutePathBuilder().path(document.getPath()).build();
-      Link sectionLink = entry.addLink(sectionUri.toString());
-      sectionLink.setMimeType(document.getMediaType());
-      sectionLink.setRel("alternate");
+      URI documentUri = uriInfo.getAbsolutePathBuilder().path(document.getPath()).build();
+      Link documentLink = entry.addLink(documentUri.toString());
+      documentLink.setMimeType(document.getMediaType());
+      documentLink.setRel("alternate");
       entry.setEdited(document.getLastUpdated());
       entry.setUpdated(document.getLastUpdated());
-      entry.setId(sectionUri.toString());
+      entry.setId(documentUri.toString());
       entry.setTitle(document.getPath());
       if (document.getMetadata() != null) {
         entry.addAuthor(document.getMetadata().getAuthor());

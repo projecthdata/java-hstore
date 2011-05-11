@@ -35,20 +35,8 @@ public class RootFeedWriter extends AtomFeedWriter<HDR> {
   public void buildFeed(Feed feed, HDR entity) {
     feed.setTitle("Root");
     for (Section section: entity.getRootDocument().getRootSections()) {
-      Entry entry = feed.addEntry();
-      URI sectionUri = uriInfo.getAbsolutePathBuilder().path(section.getPath()).build();
-      Link sectionLink = entry.addLink(sectionUri.toString());
-      sectionLink.setMimeType(MediaType.APPLICATION_ATOM_XML);
-      sectionLink.setRel("alternate");
-      entry.setId(sectionUri.toString());
-      entry.setTitle(section.getName());
-      if (section.getExtension() != null) {
-        Category category = entry.addCategory(section.getExtension().getId());
-        category.setScheme(Constants.HDATA_XML_NS);
-      }
+      writeSection(feed, section);
     }
-
-
   }
 
 }
