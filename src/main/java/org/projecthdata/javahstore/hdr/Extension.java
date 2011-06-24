@@ -33,4 +33,11 @@ public interface Extension {
    * @return
    */
   String getContentType();
+  
+    /**
+   * The url of the XML schema (for application/xml content types) or a RDDL
+   * document
+   * @return
+   */
+  String getUrl();
 }

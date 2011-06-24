@@ -45,7 +45,7 @@ public class RecordResourceTest extends HDataTest {
     Document doc = buildDocument(entity);
     String title = getXpath().evaluate("/atom:feed/atom:title", doc);
     assertEquals("Root", title);
-    String sections = getXpath().evaluate("count(/atom:feed/atom:entry[atom:category/@term='http://example.com/hdata/ext1'])", doc);
+    String sections = getXpath().evaluate("count(/atom:feed/atom:entry[atom:category/@term='1'])", doc);
     assertEquals("1", sections);
   }
 

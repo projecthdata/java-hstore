@@ -38,9 +38,9 @@ public class DummyRootDocumentImpl implements RootDocument {
     extensions = new HashMap<String,Extension>();
     rootSections = new ArrayList<Section>();
     final String extId1 = "http://example.com/hdata/ext1";
-    Extension ext1 = new DummyExtensionImpl(extId1, "application/foobar+xml");
+    Extension ext1 = new DummyExtensionImpl("1", extId1, "application/foobar+xml");
     final String extId2 = "http://example.com/hdata/ext2";
-    Extension ext2 = new DummyExtensionImpl(extId2, "application/foobarbaz+xml");
+    Extension ext2 = new DummyExtensionImpl("2", extId2, "application/foobarbaz+xml");
     extensions.put(extId1, ext1);
     extensions.put(extId2, ext2);
     Section section = new DummySectionImpl(ext1);

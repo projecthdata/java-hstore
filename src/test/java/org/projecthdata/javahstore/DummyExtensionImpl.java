@@ -21,10 +21,12 @@ class DummyExtensionImpl implements Extension {
 
   String id;
   String contentType;
-
-  public DummyExtensionImpl(String id, String contentType) {
+  String url;
+  
+  public DummyExtensionImpl(String id, String contentType, String url) {
     this.id = id;
     this.contentType = contentType;
+    this.url = url;
   }
 
   @Override
@@ -36,4 +38,9 @@ class DummyExtensionImpl implements Extension {
   public String getContentType() {
     return contentType;
   }
+
+    @Override
+    public String getUrl() {
+        return url;
+    }
 }
