@@ -120,6 +120,10 @@ public class RootXMLRepresentation {
             }
 
         }
+        
+        public List<SectionRepresentation> getSections() {
+          return sections;
+        }
 
         public String getExtensionId() {
             return extensionId;
